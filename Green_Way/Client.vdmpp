@@ -1,12 +1,29 @@
 class Client
 types
--- TODO Define types here
+	public ClientName = seq1 of char;
+	public ClientCardNumber = seq1 of nat;
+	
 values
 -- TODO Define values here
+
 instance variables
--- TODO Define instance variables here
+	private name: ClientName;
+	private cardNumber : ClientCardNumber;
+	
 operations
--- TODO Define operations here
+	public Client : ClientName * ClientCardNumber ==> Client
+	Client(n, cn) == (
+		name := n;
+		cardNumber := cn;
+		return self
+	);
+	
+	pure public getName: () ==> ClientName
+	getName() == return name;
+	
+	pure public getCardNumber: () ==> seq1 of nat
+	getCardNumber() == return cardNumber;
+	
 functions
 -- TODO Define functiones here
 traces
