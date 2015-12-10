@@ -1,0 +1,35 @@
+\begin{vdmpp}[breaklines=true]
+class Service_Provider
+types
+ public SPName = seq1 of char;
+ 
+values
+-- TODO Define values here
+instance variables
+ private name: SPName;
+ private services: set of Service := {};
+ 
+operations
+(*@
+\label{Service:Provider:12}
+@*)
+ public Service_Provider : SPName ==> Service_Provider
+ Service_Provider(n) == (
+  name := n;
+  return self
+ );
+ 
+(*@
+\label{getName:18}
+@*)
+ pure public getName: () ==> SPName
+ getName() == return name;
+ 
+ 
+ 
+functions
+-- TODO Define functiones here
+traces
+-- TODO Define Combinatorial Test Traces here
+end Service_Provider
+\end{vdmpp}
