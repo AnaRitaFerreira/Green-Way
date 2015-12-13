@@ -8,7 +8,28 @@ instance variables
 	private clients: set of Client := {};
 
 operations
--- TODO Define operations here
+
+--remove um cliente   	
+  public removeClient(client: Client) == 
+  ( 	
+		clients := clients \ {client};
+  )
+  pre
+  	client in set clients;
+  	
+ --adiciona um protocolo com um fornecedor de servicos 
+	public addServiceProvider(provider: Service_Provider) == (
+		
+		--MyTestCase`assertTrue(
+    	--provider.getAllSpots() inter getAllSpots() = {}
+    --);
+	
+		sproviders := sproviders union {provider};
+
+	)
+	pre
+		not provider in set sproviders;
+		
 functions
 -- TODO Define functiones here
 traces

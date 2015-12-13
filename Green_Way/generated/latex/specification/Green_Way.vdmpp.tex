@@ -5,9 +5,21 @@ types
 values
 -- TODO Define values here
 instance variables
--- TODO Define instance variables here
+ private sproviders: set of Service_Provider := { };
+ private clients: set of Client := {};
+
 operations
--- TODO Define operations here
+
+--remove um cliente    
+(*@
+\label{removeClient:13}
+@*)
+  public removeClient(client: Client) == 
+  (  
+  clients := clients \ {client};
+  )
+  pre
+   client in set clients;
 functions
 -- TODO Define functiones here
 traces

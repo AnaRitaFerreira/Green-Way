@@ -1,42 +1,33 @@
 \begin{vdmpp}[breaklines=true]
 class Client
-types
- public ClientName = seq1 of char;
- public ClientCardNumber = seq1 of nat;
  
-values
--- TODO Define values here
-
 instance variables
- private name: ClientName;
- private cardNumber : ClientCardNumber;
+ public name : seq1 of char;
+ public payment_card : int; 
  
 operations
+ 
 (*@
-\label{Client:14}
+\label{Client:9}
 @*)
- public Client : ClientName * ClientCardNumber ==> Client
- Client(n, cn) == (
-  name := n;
-  cardNumber := cn;
-  return self
+ public Client : seq1 of char * int ==> Client
+  Client(nome, pay_card) == (
+  name := nome;
+  payment_card := pay_card;
+  return self;
  );
  
 (*@
-\label{getName:21}
+\label{getName:16}
 @*)
- pure public getName: () ==> ClientName
+ pure public getName: () ==> seq1 of char
  getName() == return name;
  
 (*@
-\label{getCardNumber:24}
+\label{getCardNumber:19}
 @*)
- pure public getCardNumber: () ==> seq1 of nat
- getCardNumber() == return cardNumber;
+ pure public getCardNumber: () ==> int
+ getCardNumber() == return payment_card;
  
-functions
--- TODO Define functiones here
-traces
--- TODO Define Combinatorial Test Traces here
 end Client
 \end{vdmpp}
