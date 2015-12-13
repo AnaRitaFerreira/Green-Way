@@ -1,22 +1,30 @@
 class Passage
-types
--- TODO Define types here
-values
--- TODO Define values here
+
 instance variables
- 	public device: Device;
- 	public provider: [Service_Provider];
- 	public cost: real;
+	public client: Client;
+	public spot: Spot;
+	public time: Time;
+	public provider: [Service_Provider];
+	public cost: real;
+	
 operations
-	public Passage : Device * [Service_Provider] * real ==> Passage
-		 Passage(dev,sprov,cst) == (
-		 	device := dev ;
-			provider := sprov;
-			cost := cst;
-			return self;
+	public Passage : Client * Spot * Time * [Service_Provider] * real ==> Passage
+	 Passage(cl, spt, t, sprovider, cst) == (
+	 	client := cl ;
+		spot := spt;
+		time := t;
+		provider := sprovider;
+		cost := cst;
+		return self;
+	)
+	pre
+	(
+		(
+			sprovider = nil
+			and 
+			isofclass(Highway, spt)
 		)
-functions
--- TODO Define functiones here
-traces
--- TODO Define Combinatorial Test Traces here
+		or
+			sprovider <> nil
+	);
 end Passage

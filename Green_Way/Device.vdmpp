@@ -1,19 +1,12 @@
 class Device
 types
-	public Plate = seq1 of char;
-	public ClientCardNumber = seq1 of nat;
+-- TODO Define types here
 values
 -- TODO Define values here
 instance variables
-	private plate:Plate;
-	private cardN:ClientCardNumber;
+-- TODO Define instance variables here
 operations
-		public Device : Plate * ClientCardNumber ==> Device
-			Device(pt, cn) == (
-				plate := pt;
-				cardN := cn;
-				return self
-			);
+-- TODO Define operations here
 functions
 -- TODO Define functiones here
 traces

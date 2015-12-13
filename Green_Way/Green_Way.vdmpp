@@ -4,7 +4,9 @@ types
 values
 -- TODO Define values here
 instance variables
--- TODO Define instance variables here
+	private sproviders: set of Service_Provider := { };
+	private clients: set of Client := {};
+
 operations
 -- TODO Define operations here
 functions

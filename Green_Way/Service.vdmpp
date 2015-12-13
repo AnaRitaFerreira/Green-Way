@@ -1,14 +1,12 @@
-class Service
-types
--- TODO Define types here
-values
--- TODO Define values here
-instance variables
--- TODO Define instance variables here
+class Service	
+
 operations
--- TODO Define operations here
-functions
--- TODO Define functiones here
-traces
--- TODO Define Combinatorial Test Traces here
+	public getAllSpots : () ==> set of Spot
+	getAllSpots() == 
+    is subclass responsibility;
+		
+	public passa : Client * Spot * Time * [Passage] ==> real
+	passa(client, spot, time, last_passage) == 
+		is subclass responsibility;
+		
 end Service

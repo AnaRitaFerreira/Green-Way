@@ -1,27 +1,46 @@
 class Service_Provider
-types
-	public SPName = seq1 of char;
-	
-values
--- TODO Define values here
+
 instance variables
-	private name: SPName;
+	private name: seq1 of char;
 	private services: set of Service := {};
 	
 operations
-	public Service_Provider : SPName ==> Service_Provider
+	public Service_Provider : seq1 of char ==> Service_Provider
 	Service_Provider(n) == (
 		name := n;
 		return self
 	);
 	
-	pure public getName: () ==> SPName
-	getName() == return name;
+	public addService : Service ==> ()
+	addService(serv) == (
+		
+    services := services union {serv};
+	);
 	
+	public getAllSpots : () ==> set of Spot
+	getAllSpots() == (
+    dcl spots: set of Spot := {};
+    
+    for all service in set services do
+    	spots := spots union service.getAllSpots();
+    	
+  	return spots;
+	);
 	
+	--retorna o custo da passagem
+	public passa : Client * Spot * Time * [Passage] ==> real
+	passa(client, spot, time, last_passage) == (
+		
+			dcl all_spots : set of Spot := {};
+			dcl used_service : Service;
+		
+		 	for all service in set services do(
+				all_spots := service.getAllSpots();
+				if(spot in set all_spots) then 
+					used_service := service;
+			);
+		
+			return used_service.passa(client, spot, time, last_passage);
+	);
 	
-functions
--- TODO Define functiones here
-traces
--- TODO Define Combinatorial Test Traces here
 end Service_Provider
