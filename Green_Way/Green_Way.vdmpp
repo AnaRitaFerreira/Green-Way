@@ -174,7 +174,7 @@ operations
 	  time.month := month;
 	  time.year := year;
 	  
-	  Condition`assertTrue(
+	  MyTestCase`assertTrue(
 		  (
 		  	(
 			  	isofclass(Highway, s) 
@@ -207,7 +207,7 @@ operations
 		if(len passages(client) > 0) then
 			last_passage := passages(client)(len passages(client));
 
-		Condition`assertTrue(
+		MyTestCase`assertTrue(
 			last_passage = nil
 			or
 			(

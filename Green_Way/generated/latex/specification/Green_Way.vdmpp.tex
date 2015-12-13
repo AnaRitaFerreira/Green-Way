@@ -1,28 +1,305 @@
 \begin{vdmpp}[breaklines=true]
 class Green_Way
 types
--- TODO Define types here
-values
--- TODO Define values here
-instance variables
- private sproviders: set of Service_Provider := { };
- private clients: set of Client := {};
+   public Name = seq1 of char;
+   
+   public OriginDestiny :: origin: Highway
+               destination: Highway;
+  
+  public Invoice :: month: nat1
+      year: nat1
+      price: real
+      paid: bool;
 
-operations
-
---remove um cliente    
 (*@
 \label{removeClient:13}
 @*)
+instance variables
+
+  public highway_prices : map OriginDestiny to real := { |-> };
+ private sproviders: set of Service_Provider := { };
+ public clients : set of Client := {};
+ public passages: map Client to seq of Passage := { |-> };
+ public invoices: map Client to seq of Invoice := { |-> };
+ public month: nat1 := 1;
+(*@
+\label{addServiceProvider:21}
+@*)
+ public year: nat1 := 2015;
+ 
+ inv month >= 1 and month <= 12;
+
+operations
+
+ --adiciona um cliente
+(*@
+\label{addClient:28}
+@*)
+  public addClient(client: Client) ==
+  (
+    clients := clients union {client};
+    passages := passages munion {client |-> []};
+    invoices := invoices munion {client |-> []};
+  )
+  pre
+   not client in set clients
+  post 
+    clients <> {};
+
+  --remove um cliente    
   public removeClient(client: Client) == 
   (  
   clients := clients \ {client};
   )
   pre
    client in set clients;
+   
+  --adiciona um protocolo com um fornecedor de servicos 
+ public addServiceProvider(provider: Service_Provider) == (
+  
+  --MyTestCase`assertTrue(
+    -- provider.getAllSpots() inter getAllSpots() = {}
+    --);
+ 
+  sproviders := sproviders union {provider};
+
+ )
+ pre
+  not provider in set sproviders;
+  
+ --remove uma parceria com um fornecedor de servicos
+(*@
+\label{removeServiceProvider:61}
+@*)
+ public removeServiceProvider(provider: Service_Provider) == 
+  (  
+  sproviders := sproviders \ {provider};
+  )
+  pre
+   provider in set sproviders;
+   
+(*@
+\label{getAllSpots:68}
+@*)
+  public getAllSpots : () ==> set of Spot
+ getAllSpots() == (
+   dcl all_spots: set of Spot := {};
+   
+   for all sprovider in set sproviders do
+     all_spots := all_spots union sprovider.getAllSpots();
+     
+   return all_spots;
+ );
+ 
+(*@
+\label{getServiceProviderBySpot:78}
+@*)
+ public getServiceProviderBySpot : Spot ==> Service_Provider
+  getServiceProviderBySpot(spot) == (
+  
+  dcl all_spots : set of Spot := {};
+  dcl sprovider: Service_Provider;
+  dcl found: bool;
+  found:= false;
+  
+  for all sp in set sproviders do(
+   all_spots := sp.getAllSpots();
+   if(spot in set all_spots) then( 
+     found:= true;
+    sprovider:= sp;
+    )
+  );
+   return sprovider;
+  );
+  
+(*@
+\label{getLastPassage:96}
+@*)
+  public getLastPassage : Client * Service_Provider ==> [Passage]
+  getLastPassage(client, sp) == (
+  dcl client_passages : seq of Passage;
+  dcl last_passage: [Passage] := nil;
+   
+   client_passages := passages(client);
+   
+   for all c in set elems client_passages do
+    if (sp = c.provider) then
+     last_passage := c;
+     
+   return last_passage;
+ );
+ 
+(*@
+\label{getLastHighwayPassage:110}
+@*)
+ public getLastHighwayPassage : Client ==> [Passage]
+ getLastHighwayPassage(client) == (
+  
+   for r in reverse passages(client) do
+    if (isofclass(Highway, r.spot)) then
+     return r;   
+   return nil; 
+ );
+ 
+(*@
+\label{incrementMonth:119}
+@*)
+ public incrementMonth : () ==> ()
+  incrementMonth() == (
+   
+   if(month = 12) then(
+    month:= 1;
+    year := year + 1;)
+   else
+    month := month + 1;
+    
+   for all client in set clients do
+    sendInvoice(client);
+  );
+  
+(*@
+\label{sendInvoice:132}
+@*)
+  public sendInvoice : Client ==> ()
+  sendInvoice(client) == (
+    dcl client_balance: real := 0.0;
+    dcl previous_month: nat1 := month;
+    dcl previous_year : nat1 := year;
+    
+    if(month = 1) then(
+     previous_month := 12;
+     previous_year := year - 1;
+    )
+    else(
+     previous_month := month - 1
+    );
+
+    for all p in set elems passages(client) do
+     if(p.time.month = previous_month and p.time.year = previous_year) then
+      client_balance := client_balance + p.cost;
+    
+    invoices := invoices ++ {client |-> invoices(client) ^ [mk_Invoice(previous_month, previous_year, client_balance, false)]};
+  );
+  
+(*@
+\label{payInvoice:153}
+@*)
+  public payInvoice : Client * nat1 * nat1==> ()
+  payInvoice(client, m, y) == (
+   dcl client_invoices : seq of Invoice := invoices(client);
+   
+   for index = len client_invoices to 1 do
+   if(client_invoices(index).month = m and client_invoices(index).year = y) then
+   (
+    client_invoices := client_invoices ++ { index |-> mk_Invoice(client_invoices(index).month, client_invoices(index).year, client_invoices(index).price, true)};
+    invoices := invoices ++ {client |-> client_invoices};
+    return;
+   );
+  )
+  pre
+   exists i in set elems invoices(client) & (i.month = m and i.year = y);
+   
+(*@
+\label{passa:168}
+@*)
+  public passa(client: Client, s : Spot, time: Time) == (
+   dcl estab : [Service_Provider] := nil;
+   dcl cost : real;
+   dcl new_passage : Passage;
+   dcl last_passage : [Passage] := nil;
+   dcl client_passages : seq of Passage;
+   time.month := month;
+   time.year := year;
+   
+   MyTestCase`assertTrue(
+    (
+     (
+      isofclass(Highway, s) 
+     and 
+     (
+      let n  = narrow_(s,Highway) in 
+      (
+       (
+        n.type = <EXIT>
+        and
+        getLastHighwayPassage(client) <> nil
+        and
+        let n1 = narrow_(getLastHighwayPassage(client).spot, Highway) in 
+        n1.type = <ENTRANCE>
+        and 
+        mk_OriginDestiny(n1, n) in set dom highway_prices
+       )
+       or
+       (
+        n.type = <ENTRANCE>
+       )
+      )
+     )
+    )
+    or (not isofclass(Highway, s))
+    
+   )
+  );
+  
+  if(len passages(client) > 0) then
+   last_passage := passages(client)(len passages(client));
+
+  MyTestCase`assertTrue(
+   last_passage = nil
+   or
+   (
+    last_passage <> nil
+    and 
+    time.timer - last_passage.time.timer > 0
+    and
+     (distance(s.local, last_passage.spot.local) / (time.timer - last_passage.time.timer)) <= MAX_SPEED
+     and time.timer > last_passage.time.timer
+    )
+  );
+   
+   if (isofclass(Highway, s)) then
+  ( 
+   dcl hn : Highway;
+   last_passage := getLastHighwayPassage(client);
+   hn := s;
+   if(hn.type = <ENTRANCE>) then
+    (
+    cost:= 0.0;
+    )
+   else
+   (
+    dcl entrance_node : Highway;
+    entrance_node := last_passage.spot;
+    cost := highway_prices(mk_OriginDestiny(entrance_node , hn));
+   );
+  )
+   else
+   (
+    estab := getServiceProviderBySpot(s);
+          
+    last_passage := getLastPassage(client, estab);
+   
+    cost := estab.passa(client, s, time, last_passage)
+   );
+   
+  client_passages := passages(client);
+  new_passage := new Passage(client, s, time, estab, cost);
+  client_passages := client_passages ^ [new_passage];
+  passages := passages ++ { client |-> client_passages };  
+ )
+ pre
+ (
+  client in set clients
+ );
+ 
 functions
--- TODO Define functiones here
-traces
--- TODO Define Combinatorial Test Traces here
+(*@
+\label{distance:259}
+@*)
+ public distance(l1: Spot`Local, l2: Spot`Local) res: real ==
+    (
+      MATH`sqrt((l2.latitude - l1.latitude)*(l2.latitude - l1.latitude) + (l2.longitude - l1.longitude)*(l2.longitude - l1.longitude))
+    ); 
+  
 end Green_Way
 \end{vdmpp}
