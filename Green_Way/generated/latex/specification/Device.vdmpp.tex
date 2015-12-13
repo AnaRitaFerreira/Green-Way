@@ -1,13 +1,26 @@
 \begin{vdmpp}[breaklines=true]
 class Device
 types
--- TODO Define types here
+ public Plate = seq1 of char;
+ public ClientCardNumber = seq1 of nat;
 values
 -- TODO Define values here
 instance variables
--- TODO Define instance variables here
+ private plate:Plate;
+ private cardN:ClientCardNumber;
 operations
--- TODO Define operations here
+(*@
+\label{Client:11}
+@*)
+(*@
+\label{Device:11}
+@*)
+  public Device : Plate * ClientCardNumber ==> Device
+   Device(pt, cn) == (
+    plate := pt;
+    cardN := cn;
+    return self
+   );
 functions
 -- TODO Define functiones here
 traces
