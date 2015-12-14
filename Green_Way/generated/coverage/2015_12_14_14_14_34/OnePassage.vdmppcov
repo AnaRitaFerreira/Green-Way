@@ -1,0 +1,25 @@
+class OnePassage is subclass of Service
+
+instance variables
+	public spot: Spot;
+	public price: real;
+	
+operations
+	public OnePassage : Spot * real ==> OnePassage
+	 OnePassage(s, p) == (
+	 	spot := s;
+	 	price := p;
+		return self;
+	);
+	
+	public getAllSpots : () ==> set of Spot
+	getAllSpots() == (
+    return {spot};
+	);
+	
+	public passa : Client * Spot * Time * [Passage] ==> real
+	passa(-, -, -, -) == (
+		return price;
+	);
+	
+end OnePassage

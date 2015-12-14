@@ -1,0 +1,17 @@
+class Highway is subclass of Spot
+
+types
+	public Type = <ENTRANCE> | <EXIT>;
+	
+instance variables
+	public type: Type;
+	
+operations
+	public Highway : nat1 * nat1 * Type ==> Highway
+	 Highway(lat, long, t) == (
+	 	local := mk_Local(lat, long);
+	 	type := t;
+		return self;
+	);
+	
+end Highway

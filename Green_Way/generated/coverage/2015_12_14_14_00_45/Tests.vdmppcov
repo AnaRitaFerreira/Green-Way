@@ -1,0 +1,530 @@
+class Tests is subclass of MyTestCase
+
+operations
+
+	public Run : () ==> ()
+  Run()  ==
+  (
+  -- Valid test cases  
+		--Test1(); --testar adicao e remocao de protocolos /*R1*/
+		--Test2(); --testar adicao e remocao de clientes /*R2*/
+		--Test3(); --testar passagem em sensor de highway (entrada e saida) /*R3*/
+		--Test4(); --testar passagem em sensor de pagamento simples /*R3*/
+		Test5();
+		
+  -- Error test cases (remover o comentário 1 a 1 para testar que falham)   
+	  --Test5(); --testar remocao de protocolos que nao existem ou adicao multipla /*R1*/
+		--Test6(); --testar a remocao de clientes que nao existam ou adicao multipla /*R2*/
+		-- Test10(); --testar passar num par de sensores (entrada-saida) que nao existe na tabela de preços /*R3*/
+	  -- Test11(); --testar passar em sensores de highway violando restricoes espaço-temporais (velocidade 3) /*R3*/
+    -- Test12(); --testar passar em num sensor com tempo anterior /*R3*/
+    -- Test13(); --testar passar em num no que nao existe em nenhum serviço /*R3*/
+    -- Test14(); --testar passar em parque saida antes de entrada /*R3*/
+    -- Test15(); --testar passar em parque entrar duas vezes (entradas diferentes) /*R3*/
+    -- Test16();--testar entrar num parque e passar na autoestrada a meio /*R3*/
+    -- Test17(); --testar passar ao mesmo tempo em 2 nos /*R3*/
+    -- Test18(); --testar pagar fatura que nao foi emitida /*R5*/
+  );
+  
+
+  /* VALID TEST CASES */
+  
+  --testar adicao e remocao de protocolos
+ 	public Test1 : () ==> ()
+  Test1() ==
+  (
+  	dcl gw : Green_Way;
+  	dcl spa: Service_Provider;
+  	dcl spb: Service_Provider;
+  	
+  	gw := new Green_Way();
+  	
+  	spa := new Service_Provider("SPA");
+  	spb := new Service_Provider("SPB");
+  	
+  	gw.addServiceProvider(spa);
+  	gw.addServiceProvider(spb);
+  	gw.removeServiceProvider(spb);
+  	assertEqual(gw.sproviders, {spa});
+  	
+  );
+  
+  --testar adicao e remocao de clientes
+ 	public Test2 : () ==> ()
+  Test2() ==
+  (
+  	dcl gw : Green_Way;
+  	dcl cli1: Client;
+  	dcl cli2: Client;
+  	dcl cli3: Client;
+  	
+  	gw := new Green_Way();
+  	
+  	cli1 := new Client("CL1", 281923918);
+  	cli2 := new Client("CL2", 1236334198);
+  	cli3 := new Client("CL3", 1236334198);
+  	
+  	gw.addClient(cli1);
+  	gw.addClient(cli3);	
+  	gw.removeClient(cli1);
+  	gw.addClient(cli1);
+  	gw.addClient(cli2);
+  	gw.removeClient(cli3);
+  	
+  	assertEqual(gw.clients, {cli1,cli2});
+
+  );
+  
+  --testar passagem em sensor de highway (entrada e saida)
+ 	public Test3 : () ==> ()
+  Test3() ==
+  (
+  	dcl gw : Green_Way;
+  	dcl cli1: Client;
+  	dcl spa: Service_Provider;
+  	dcl entrance: Highway;
+  	dcl out: Highway;
+  	dcl spot: Spot;
+   	dcl device: OnePassage;
+  	
+  	gw := new Green_Way();
+  	entrance := new Highway(5,5, <ENTRANCE>);
+   	out := new Highway(6,6, <EXIT>);
+   	spot := new Spot(5,5);
+   	
+  	gw.highway_prices := 
+		{ 
+			mk_Green_Way`OriginDestiny(entrance, out) |-> 4.2
+		};
+  	
+  	cli1 := new Client("CLI1", 281923918);
+  	gw.addClient(cli1);
+  	spa := new Service_Provider("SPA");
+   	device := new OnePassage(spot, 2.3);
+  	spa.addService(device); 	
+  	
+  	gw.addServiceProvider(spa);
+  	gw.passa(cli1, entrance, new Time(10));
+  	gw.passa(cli1, spot, new Time(20));
+  	gw.passa(cli1, out, new Time(200));
+  	
+  	assertEqual(0, gw.passages(cli1)(1).cost);
+  	assertEqual(2.3, gw.passages(cli1)(2).cost);
+  	assertEqual(4.2, gw.passages(cli1)(3).cost);
+  	
+  );
+  
+  --testar passagem em sensor de pagamento simples
+ 	public Test4 : () ==> ()
+  Test4() ==
+  (
+  	dcl gw : Green_Way;
+  	dcl cli1: Client;
+  	dcl spa: Service_Provider;
+  	dcl spot: Spot;
+  	dcl device: OnePassage;
+  	
+  	gw := new Green_Way();
+  	spot := new Spot(5,5);
+  	
+  	cli1 := new Client("Cli1", 281923918);
+  	gw.addClient(cli1);
+  	spa := new Service_Provider("SPA");
+  	device := new OnePassage(spot, 2.3);
+  	spa.addService(device);
+  	gw.addServiceProvider(spa);
+  	
+  	gw.passa(cli1, spot, new Time(10));
+  	
+  	assertEqual(2.3, gw.passages(cli1)(1).cost);
+  	
+  );
+  
+    --testar emissao e pagamento de faturas
+ 	public Test5 : () ==> ()
+  Test5() ==
+  (
+  	dcl gw : Green_Way;
+  	dcl spa: Service_Provider;
+  	dcl cli1: Client;
+  	dcl spot : Spot;
+  	dcl entrance: Highway;
+  	dcl out: Highway;
+   	dcl device: OnePassage;
+  	
+  	gw := new Green_Way();
+  	cli1 := new Client("CLI1", 123456789);
+  	spa := new Service_Provider("SPA");
+  	entrance := new Highway(5,5, <ENTRANCE>);
+   	out := new Highway(6,6, <EXIT>);
+   	spot := new Spot(5,5);
+   	device := new OnePassage(spot, 2.3);
+   	
+   	gw.addClient(cli1);
+   	gw.highway_prices := 
+		{ 
+			mk_Green_Way`OriginDestiny(entrance, out) |-> 4.2
+		};
+  	
+   	
+  	spa.addService(device);
+  	gw.addServiceProvider(spa);
+  	gw.passa(cli1, entrance, new Time(10));
+  	gw.passa(cli1, spot, new Time(20));
+  	gw.passa(cli1, out, new Time(200));
+   	
+   	--faturas sao emitidas
+   	gw.incrementMonth();
+   	
+   	assertEqual(5*1.5, gw.invoices(cli1)(1).price);
+   	assertEqual(false, gw.invoices(cli1)(1).paid);
+   	
+   	gw.payInvoice(cli1, 1, 2015);
+  	IO`print(gw.passages(cli1)(1).cost);
+  	assertTrue(gw.invoices(cli1)(1).paid);
+  );
+  
+   /* ERROR TEST CASES */
+  /*
+  --testar a remocao de protocolos que nao existem ou adicao multipla
+ 	public Test5 : () ==> ()
+  Test5() ==
+  (
+  	dcl gw : Green_Way;
+  	dcl spa: Service_Provider;
+  	dcl spb: Service_Provider;
+  	
+  	gw := new Green_Way();
+  	
+  	spa := new Service_Provider("SPA");
+  	spb := new Service_Provider("SPB");
+  	
+  	gw.addServiceProvider(spa);
+  	--gw.addServiceProvider(spa); -- tentativa de adição repetida
+  	 
+  	gw.removeServiceProvider(spa);
+  	gw.removeServiceProvider(spb); --tentativa de remoção de um serviceProvider inexistente
+  );
+  
+  --testar a remocao de clientes que nao existam ou adiacao multipla
+ 	public static Test6 : () ==> ()
+  Test6() ==
+  (
+  	dcl gw : Green_Way;
+  	dcl cli1: Client;
+  	dcl cli2: Client;
+  	
+  	gw := new Green_Way();
+  	
+  	cli1 := new Client("CLI1", 281923918);
+  	cli2 := new Client("CLI2", 1236334198);
+  	
+  	gw.addClient(cli1);
+  	-- gw.addClient(cli1); --adicionar cliente repetido
+  	
+  	gw.removeClient(cli1);
+  	gw.removeClient(cli2); --eliminar cliente inexistente
+
+  );
+  
+  /*
+  --testar passar em sensores de highway de que nao existem nessa highway
+  public static Test10 : () ==> ()
+  Test10() ==
+  (
+  	dcl greenWay : greenWay;
+  	dcl c1: Client;
+  	dcl AE_entrada: HighwayNode;
+  	dcl AE_saida: HighwayNode;
+  	dcl AE_entrada2: HighwayNode;
+  	dcl AE_saida2: HighwayNode;
+  	
+  	greenWay := new greenWay();
+  	AE_entrada := new HighwayNode(5,5, <ENTRANCE>);
+   	AE_saida := new HighwayNode(6,6, <EXIT>);
+   	AE_entrada2 := new HighwayNode(4,4, <ENTRANCE>);
+   	AE_saida2 := new HighwayNode(6,8, <EXIT>);
+   	
+  	greenWay.highway_prices := 
+		{ 
+			mk_greenWay`OriginDestiny(AE_entrada, AE_saida) |-> {<C1> |-> 4.2, <C2> |-> 5.6, <C3> |-> 5.6, <C4> |-> 5.6},
+			mk_greenWay`OriginDestiny(AE_entrada2, AE_saida2) |-> {<C1> |-> 4, <C2> |-> 5, <C3> |-> 8, <C4> |-> 10}
+			
+		};
+  	
+  	c1 := new Client(<C1>, "francisco", 281923918);
+  	greenWay.addClient(c1);
+  	
+  	
+  	greenWay.passa(c1, AE_entrada, new Time(10));
+  	greenWay.passa(c1, AE_saida2, new Time(200));
+
+  	
+  );
+  
+   --testar passar em sensores de highway violando restricoes espaço-temporais (velocidade 3)
+  public static Test11 : () ==> ()
+  Test11() ==
+  (
+  	dcl greenWay : greenWay;
+  	dcl c1: Client;
+  	dcl AE_entrada: HighwayNode;
+  	dcl AE_saida: HighwayNode;
+  	
+  	greenWay := new greenWay();
+  	AE_entrada := new HighwayNode(5,5, <ENTRANCE>);
+   	AE_saida := new HighwayNode(5,12, <EXIT>); 
+   	-- distancia de 7, deveria ser no maximo 6 (em 2 unidades de tempo)   	
+  	greenWay.highway_prices := 
+		{ 
+			mk_greenWay`OriginDestiny(AE_entrada, AE_saida) |-> {<C1> |-> 4.2, <C2> |-> 5.6, <C3> |-> 5.6, <C4> |-> 5.6}
+		};
+  	
+  	c1 := new Client(<C1>, "francisco", 281923918);
+  	greenWay.addClient(c1);
+
+  	greenWay.passa(c1, AE_entrada, new Time(10));
+  	greenWay.passa(c1, AE_saida, new Time(12));
+  	*/
+  	/* -- Outros exemplos
+  	greenWay.passa(c1, AE_entrada, new Time(10));
+  	greenWay.passa(c1, AE_entrada, new Time(12));
+  	--
+  	greenWay.passa(c1, AE_saida, new Time(10));
+  	greenWay.passa(c1, AE_saida, new Time(12));
+  	*/
+  --);
+  /*
+  public static Test12 : () ==> ()
+  Test12() ==
+  (
+  	dcl greenWay : greenWay;
+  	dcl c1: Client;
+  	dcl AE_entrada: HighwayNode;
+  	dcl AE_saida: HighwayNode;
+  	
+  	greenWay := new greenWay();
+  	AE_entrada := new HighwayNode(5,5, <ENTRANCE>);
+   	AE_saida := new HighwayNode(5,6, <EXIT>); 
+
+  	greenWay.highway_prices := 
+		{ 
+			mk_greenWay`OriginDestiny(AE_entrada, AE_saida) |-> {<C1> |-> 4.2, <C2> |-> 5.6, <C3> |-> 5.6, <C4> |-> 5.6}
+		};
+  	
+  	c1 := new Client(<C1>, "francisco", 281923918);
+  	greenWay.addClient(c1);
+
+  	greenWay.passa(c1, AE_entrada, new Time(10));
+  	greenWay.passa(c1, AE_saida, new Time(6));
+
+  );
+  
+  --testar passar em num no que nao existe em nenhum serviço
+  public static Test13 : () ==> ()
+  Test13() ==
+  (
+  	dcl greenWay : greenWay;
+  	dcl c1: Client;
+  	dcl brisa: ServiceProvider;
+  	dcl AE_entrada: HighwayNode;
+  	dcl AE_saida: HighwayNode;
+  	dcl entrada_parque : Node;
+  	dcl saida_parque: Node;
+  	dcl parque1: ParkingLot;
+  	dcl solo_node: Node;
+  	
+  	greenWay := new greenWay();
+  	AE_entrada := new HighwayNode(5,5, <ENTRANCE>);
+   	AE_saida := new HighwayNode(5,6, <EXIT>); 
+    entrada_parque := new Node(1,1);
+  	saida_parque := new Node(2,2);
+  	solo_node:= new Node(5,5);
+  	
+  	parque1 := new ParkingLot({entrada_parque}, {saida_parque}, 1.5);
+  	brisa := new ServiceProvider("Brisa");
+  	brisa.addService(parque1);  	
+  	greenWay.addServiceProvider(brisa);
+  	
+  	greenWay.highway_prices := 
+		{ 
+			mk_greenWay`OriginDestiny(AE_entrada, AE_saida) |-> {<C1> |-> 4.2, <C2> |-> 5.6, <C3> |-> 5.6, <C4> |-> 5.6}
+		};
+  	
+  	c1 := new Client(<C1>, "francisco", 281923918);
+  	greenWay.addClient(c1);
+
+  	greenWay.passa(c1, AE_entrada, new Time(10));
+  	greenWay.passa(c1, AE_saida, new Time(15));
+  	greenWay.passa(c1, entrada_parque, new Time(20));
+  	greenWay.passa(c1, saida_parque, new Time(25));
+   	greenWay.passa(c1, solo_node, new Time(30));
+  	
+
+  );
+  --testar passar em parque saida antes de entrada
+  public static Test14 : () ==> ()
+  Test14() ==
+  (
+  	dcl greenWay : greenWay;
+  	dcl brisa: ServiceProvider;
+  	dcl c1: Client;
+  	dcl e1 : Node;
+  	dcl e2 : Node;
+  	dcl s1 : Node;
+  	dcl s2 : Node;
+  	
+  	dcl parque1 : Service;
+  	
+  	greenWay := new greenWay();
+  	c1 := new Client(<C1>, "francisco", 281923918);
+  	greenWay.addClient(c1);
+  	brisa := new ServiceProvider("Brisa");
+  	e1 := new Node(1,1);
+  	s1 := new Node(1,1);
+  	e2 := new Node(2,2);
+  	s2 := new Node(2,2);
+  	
+  	parque1 := new ParkingLot({e1,e2}, {s1,s2}, 1.5);
+  	brisa.addService(parque1);
+  	
+  	--TODO fazer o check ao adicionar serviceProvider que nenhum dos nos adicionados dentro esta a ser usado noutro serviceProdiver
+  	greenWay.addServiceProvider(brisa);
+  	greenWay.passa(c1, s1, new Time(10));
+  	greenWay.passa(c1, s2, new Time(15));
+   	
+  );
+  
+  --testar passar em parque entrar duas vezes (entradas diferentes)
+    public static Test15 : () ==> ()
+  Test15() ==
+  (
+  	dcl greenWay : greenWay;
+  	dcl brisa: ServiceProvider;
+  	dcl c1: Client;
+  	dcl e1 : Node;
+  	dcl e2 : Node;
+  	dcl s1 : Node;
+  	dcl s2 : Node;
+  	
+  	dcl parque1 : Service;
+  	
+  	greenWay := new greenWay();
+  	c1 := new Client(<C1>, "francisco", 281923918);
+  	greenWay.addClient(c1);
+  	brisa := new ServiceProvider("Brisa");
+  	e1 := new Node(1,1);
+  	s1 := new Node(1,1);
+  	e2 := new Node(2,2);
+  	s2 := new Node(2,2);
+  	
+  	parque1 := new ParkingLot({e1,e2}, {s1,s2}, 1.5);
+  	brisa.addService(parque1);
+  	
+  	--TODO fazer o check ao adicionar serviceProvider que nenhum dos nos adicionados dentro esta a ser usado noutro serviceProdiver
+  	greenWay.addServiceProvider(brisa);
+  	greenWay.passa(c1, e1, new Time(10));
+  	greenWay.passa(c1, e2, new Time(15));
+  	
+  	--2 saidas apos entrada tambem falha
+  	--greenWay.passa(c1, s1, new Time(20));
+  	--greenWay.passa(c1, s1, new Time(21));
+  	
+   	
+  );
+  --testar entrar num parque e passar na autoestrada a meio
+      public static Test16 : () ==> ()
+  Test16() ==
+  (
+  	dcl greenWay : greenWay;
+  	dcl brisa: ServiceProvider;
+  	dcl c1: Client;
+  	dcl e1 : Node;
+  	dcl e2 : Node;
+  	dcl s1 : Node;
+  	dcl s2 : Node;
+  	dcl AE_entrada: HighwayNode;
+  	dcl AE_saida: HighwayNode;
+  	dcl parque1 : Service;
+  	
+  	greenWay := new greenWay();
+  	c1 := new Client(<C1>, "francisco", 281923918);
+  	greenWay.addClient(c1);
+  	brisa := new ServiceProvider("Brisa");
+  	e1 := new Node(1,1);
+  	s1 := new Node(1,1);
+  	e2 := new Node(2,2);
+  	s2 := new Node(2,2);
+    AE_entrada := new HighwayNode(5,5, <ENTRANCE>);
+   	AE_saida := new HighwayNode(5,12, <EXIT>); 
+   	
+   	  	greenWay.highway_prices := 
+		{ 
+			mk_greenWay`OriginDestiny(AE_entrada, AE_saida) |-> {<C1> |-> 4.2, <C2> |-> 5.6, <C3> |-> 5.6, <C4> |-> 5.6}
+		};
+		
+  	parque1 := new ParkingLot({e1,e2}, {s1,s2}, 1.5);
+  	brisa.addService(parque1);
+  	
+  	--TODO fazer o check ao adicionar serviceProvider que nenhum dos nos adicionados dentro esta a ser usado noutro serviceProdiver
+  	greenWay.addServiceProvider(brisa);
+  	greenWay.passa(c1, e1, new Time(10));
+  	greenWay.passa(c1, AE_saida, new Time(300));
+
+  	
+   	
+  );
+  
+  --testar entrar e sair de parque no mesmo timestamp
+  public static Test17 : () ==> ()
+  Test17() ==
+  (
+  	dcl greenWay : greenWay;
+  	dcl brisa: ServiceProvider;
+  	dcl c1: Client;
+  	dcl e1 : Node;
+  	dcl e2 : Node;
+  	dcl s1 : Node;
+  	dcl s2 : Node;
+  	
+  	dcl parque1 : Service;
+  	
+  	greenWay := new greenWay();
+  	c1 := new Client(<C1>, "francisco", 281923918);
+  	greenWay.addClient(c1);
+  	brisa := new ServiceProvider("Brisa");
+  	e1 := new Node(1,1);
+  	s1 := new Node(1,1);
+  	e2 := new Node(2,2);
+  	s2 := new Node(2,2);
+  	
+  	parque1 := new ParkingLot({e1,e2}, {s1,s2}, 1.5);
+  	brisa.addService(parque1);
+  	
+  	--TODO fazer o check ao adicionar serviceProvider que nenhum dos nos adicionados dentro esta a ser usado noutro serviceProdiver
+  	greenWay.addServiceProvider(brisa);
+  	greenWay.passa(c1, e1, new Time(10));
+  	greenWay.passa(c1, s2, new Time(10));
+  	
+   	
+  );
+  
+  --testar pagar fatura que nao foi emitida
+  public static Test18 : () ==> ()
+  Test18() ==
+  (
+  	dcl greenWay : greenWay;
+  	dcl c1: Client;
+  	
+  	greenWay := new greenWay();
+  	c1 := new Client(<C1>, "francisco", 281923918);
+  	greenWay.addClient(c1);
+  	
+   	--faturas sao emitidas
+   	greenWay.incrementMonth();
+   	   	
+   	--month comeca em 1 e ano em 2014 por defeito, logo a fatura de 5-2015 nao foi emitida
+   	greenWay.payInvoice(c1, 5, 2015);  	
+  );
+  */
+end Tests
