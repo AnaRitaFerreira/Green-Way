@@ -94,7 +94,7 @@ operations
   	return last_passage;
 	);
 	
-	public getLastHighwayPassage : Client ==> [Passage]
+	public pure getLastHighwayPassage : Client ==> [Passage]
 	getLastHighwayPassage(client) == (
 		
 	  for r in reverse passages(client) do
@@ -152,7 +152,7 @@ operations
  	pre
  		exists i in set elems invoices(client) & (i.month = m and i.year = y);
  		
- 	public passa(client: Client, s : Spot, time: Time) == (
+ 	public passa(client: Client, s: Spot, time: Time) == (
 	  dcl estab : [Service_Provider] := nil;
 	  dcl cost : real;
 	  dcl new_passage : Passage;
@@ -163,7 +163,7 @@ operations
 	  		
 		if(len passages(client) > 0) then
 			last_passage := passages(client)(len passages(client));
- 
+ 		
 	  if (isofclass(Highway, s)) then
 		(	
 			dcl hn : Highway;
@@ -177,7 +177,7 @@ operations
 			(
 				dcl entrance_node : Highway;
 				entrance_node := last_passage.spot;
-				cost := highway_prices(mk_OriginDestiny(entrance_node , hn));
+			  cost := highway_prices(mk_OriginDestiny(entrance_node , hn));
 			);
 		)
   	else

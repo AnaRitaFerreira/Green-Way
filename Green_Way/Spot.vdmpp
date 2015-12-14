@@ -12,5 +12,6 @@ operations
 	 	local := mk_Local(lat, long);
 		return self;
 	);
+	
 
 end Spot
