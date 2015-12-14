@@ -9,11 +9,14 @@ types
 						year: nat1
 						price: real
 						paid: bool;
+						
+values
+	public MAX_SPEED = 3; 
 
 instance variables
 
   public highway_prices : map OriginDestiny to real := { |-> };
-	private sproviders: set of Service_Provider := { };
+	public sproviders: set of Service_Provider := { };
 	public clients : set of Client := {};
 	public passages: map Client to seq of Passage := { |-> };
 	public invoices: map Client to seq of Invoice := { |-> };
@@ -46,13 +49,7 @@ operations
   	
   --adiciona um protocolo com um fornecedor de servicos 
 	public addServiceProvider(provider: Service_Provider) == (
-		
-		--MyTestCase`assertTrue(
-    --	provider.getAllSpots() inter getAllSpots() = {}
-    --);
-	
 		sproviders := sproviders union {provider};
-
 	)
 	pre
 		not provider in set sproviders;
@@ -171,55 +168,12 @@ operations
 	  dcl new_passage : Passage;
 	  dcl last_passage : [Passage] := nil;
 	  dcl client_passages : seq of Passage;
-	  time.month := month;
-	  time.year := year;
-	  
-	  MyTestCase`assertTrue(
-		  (
-		  	(
-			  	isofclass(Highway, s) 
-					and 
-					(
-						let n  = narrow_(s,Highway) in 
-						(
-							(
-								n.type = <EXIT>
-								and
-								getLastHighwayPassage(client) <> nil
-								and
-								let n1 = narrow_(getLastHighwayPassage(client).spot, Highway) in 
-								n1.type = <ENTRANCE>
-								and 
-								mk_OriginDestiny(n1, n) in set dom highway_prices
-							)
-							or
-							(
-								n.type = <ENTRANCE>
-							)
-						)
-					)
-				)
-				or (not isofclass(Highway, s))
-				
-			)
-		);
-		
+	  time.setMonth(month);
+	  time.setYear(year);
+	  		
 		if(len passages(client) > 0) then
 			last_passage := passages(client)(len passages(client));
-
-		MyTestCase`assertTrue(
-			last_passage = nil
-			or
-			(
-				last_passage <> nil
-				and 
-				time.timer - last_passage.time.timer > 0
-				and
-			  (distance(s.local, last_passage.spot.local) / (time.timer - last_passage.time.timer)) <= MAX_SPEED
-			  and time.timer > last_passage.time.timer
-		  )
-		);
-	  
+ 
 	  if (isofclass(Highway, s)) then
 		(	
 			dcl hn : Highway;
@@ -256,6 +210,7 @@ operations
 	);
 	
 functions
+
 	public distance(l1: Spot`Local, l2: Spot`Local) res: real ==
     (
       MATH`sqrt((l2.latitude - l1.latitude)*(l2.latitude - l1.latitude) + (l2.longitude - l1.longitude)*(l2.longitude - l1.longitude))

@@ -2,19 +2,18 @@ class Tests is subclass of MyTestCase
 
 operations
 
-	public static Run : () ==> ()
+	public Run : () ==> ()
   Run()  ==
   (
-  
   -- Valid test cases  
 		Test1(); --testar adicao e remocao de protocolos /*R1*/
-		Test2(); --testar adicao e remocao de clientes /*R2*/
-		Test3(); --testar passagem em sensor de highway (entrada e saida) /*R3*/
-		Test4(); --testar passagem em sensor de pagamento simples /*R3*/
-		Test5(); --testar passagem em sensor de pagamento complexo (dependente de classe do veiculo) /*R3*/
-		Test6(); --testar passagem em sensores de parque de estacionamento (entrada e saida) /*R3*/
-		Test7(); --testar emissao e pagamento de faturas /*R4+R5*/
-		
+		--Test2(); --testar adicao e remocao de clientes /*R2*/
+		--Test3(); --testar passagem em sensor de highway (entrada e saida) /*R3*/
+		--Test4(); --testar passagem em sensor de pagamento simples /*R3*/
+		--Test5(); --testar passagem em sensor de pagamento complexo (dependente de classe do veiculo) /*R3*/
+		--Test6(); --testar passagem em sensores de parque de estacionamento (entrada e saida) /*R3*/
+		--Test7(); --testar emissao e pagamento de faturas /*R4+R5*/
+
   -- Error test cases (remover o comentário 1 a 1 para testar que falham)   
 		-- Test8(); --testar remocao de protocolos que nao existem ou adicao multipla /*R1*/
 		-- Test9(); --testar a remocao de clientes que nao existam ou adicao multipla /*R2*/
@@ -33,7 +32,7 @@ operations
   /* VALID TEST CASES */
   
   --testar adicao e remocao de protocolos
- 	public static Test1 : () ==> ()
+ 	public Test1 : () ==> ()
   Test1() ==
   (
   	dcl greenWay : Green_Way;
@@ -51,7 +50,7 @@ operations
   	assertEqual(greenWay.sproviders, {ascendi});
   	
   );
-    
+  /*
   --testar adicao e remocao de clientes
  	public static Test2 : () ==> ()
   Test2() ==
@@ -259,9 +258,9 @@ operations
   	
   	assertTrue(greenWay.invoices(c1)(1).paid);
   );
-  
+  */
    /* ERROR TEST CASES */
-  
+  /*
   --testar a remocao de protocolos que nao existem ou adicao multipla
  	public static Test8 : () ==> ()
   Test8() ==
@@ -360,6 +359,7 @@ operations
 
   	greenWay.passa(c1, AE_entrada, new Time(10));
   	greenWay.passa(c1, AE_saida, new Time(12));
+  	*/
   	/* -- Outros exemplos
   	greenWay.passa(c1, AE_entrada, new Time(10));
   	greenWay.passa(c1, AE_entrada, new Time(12));
@@ -367,9 +367,9 @@ operations
   	greenWay.passa(c1, AE_saida, new Time(10));
   	greenWay.passa(c1, AE_saida, new Time(12));
   	*/
-  );
-  
-    public static Test12 : () ==> ()
+  --);
+  /*
+  public static Test12 : () ==> ()
   Test12() ==
   (
   	dcl greenWay : greenWay;
@@ -600,4 +600,5 @@ operations
    	--month comeca em 1 e ano em 2014 por defeito, logo a fatura de 5-2015 nao foi emitida
    	greenWay.payInvoice(c1, 5, 2015);  	
   );
+  */
 end Tests

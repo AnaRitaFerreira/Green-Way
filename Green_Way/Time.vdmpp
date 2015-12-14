@@ -20,6 +20,16 @@ public Time : nat1 ==> Time
 		return self;
 	);
 	
+public setMonth : nat1 ==> ()
+setMonth (m) == (
+	month := m;
+);
+
+public setYear : nat1 ==> ()
+setYear (y) == (
+	year := y;
+);
+	
 functions
 
 	public compareTimes : nat1 * nat1 -> int
