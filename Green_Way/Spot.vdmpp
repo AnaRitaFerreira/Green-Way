@@ -1,5 +1,8 @@
 class Spot
 types
+
+	--é a classe dos postos em que o cliente pode passar
+	--guarda a informação da posição 
 	public Local :: 	latitude: nat1
 										longitude: nat1;
 												

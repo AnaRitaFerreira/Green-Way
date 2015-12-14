@@ -5,6 +5,10 @@ instance variables
 	private services: set of Service := {};
 	
 operations
+
+	--classe que é responsavel pelos vários services que são disponibilizados ao cliente
+	--guarda uma lista de todos os services que são disponibilizados
+	--gera o custo que deve ser cobrado ao cliente pelo uso de um serviço seu
 	public Service_Provider : seq1 of char ==> Service_Provider
 	Service_Provider(n) == (
 		name := n;

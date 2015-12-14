@@ -7,16 +7,13 @@ instance variables
 	public type: Type;
 	
 operations
+	--uma passagem na highway pode ser de dois tipos, entrada ou saída
+	--a highway guarda a localização da passagem para haver uma validação de passagem pelo cliente
 	public Highway : nat1 * nat1 * Type ==> Highway
 	 Highway(lat, long, t) == (
 	 	local := mk_Local(lat, long);
 	 	type := t;
 		return self;
 	);
-	
-	public getType : () ==> Type 
-	getType() == (
-		return type;
-	);
-	
+
 end Highway

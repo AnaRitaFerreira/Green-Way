@@ -9,9 +9,6 @@ types
 						year: nat1
 						price: real
 						paid: bool;
-						
-values
-	public MAX_SPEED = 3; 
 
 instance variables
 
@@ -62,6 +59,7 @@ operations
   pre
   	provider in set sproviders;
 	
+	--devolve todos os postos que um service provider tem
 	public getServiceProviderBySpot : Spot ==> Service_Provider
 	 getServiceProviderBySpot(spot) == (
 		
@@ -80,6 +78,7 @@ operations
   	return sprovider;
 	 );
 	 
+	 --devolve a ultima passagem de um cliente num service provider
 	 public getLastPassage : Client * Service_Provider ==> [Passage]
 	 getLastPassage(client, sp) == (
 		dcl client_passages : seq of Passage;
@@ -94,6 +93,7 @@ operations
   	return last_passage;
 	);
 	
+	--devolve a ultima passagem de um cliente numa highway
 	public pure getLastHighwayPassage : Client ==> [Passage]
 	getLastHighwayPassage(client) == (
 		
@@ -103,6 +103,7 @@ operations
 	  return nil; 
 	);
 	
+	--incrementa o mês de cobrança e envia a fatura de pagamento ao cliente
 	public incrementMonth : () ==> ()
  	incrementMonth() == (
 	 	
@@ -116,6 +117,7 @@ operations
 	 		sendInvoice(client);
  	);
  	
+ 	--envio de fatura de pagamento para um cliente
  	public sendInvoice : Client ==> ()
  	sendInvoice(client) == (
  			dcl client_balance: real := 0.0;
@@ -137,6 +139,7 @@ operations
 	 		invoices := invoices ++ {client |-> invoices(client) ^ [mk_Invoice(previous_month, previous_year, client_balance, false)]};
  	);
  	
+ 	--cliente efetua o pagamento de uma fatura 
  	public payInvoice : Client * nat1 * nat1==> ()
  	payInvoice(client, m, y) == (
  		dcl client_invoices : seq of Invoice := invoices(client);
@@ -151,7 +154,11 @@ operations
  	)
  	pre
  		exists i in set elems invoices(client) & (i.month = m and i.year = y);
- 		
+ 	
+ 	--realiaza uma passagem pelo cliente(client), no spot(s) no momento(time)
+ 	--se a passagem for numa highway, tem que verificar se é uma entrada ou uma saída
+ 	--se for uma saída, tem que ser lançada uma cobrança para o cliente
+ 	--se nao for uma passagem numa highwway, lança uma cobrança com o valor respetivo	
  	public passa(client: Client, s: Spot, time: Time) == (
 	  dcl estab : [Service_Provider] := nil;
 	  dcl cost : real;

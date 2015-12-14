@@ -5,7 +5,7 @@ instance variables
 	public payment_card : int; 
 	
 operations
-	
+	--cliente tem informação do nome e do numero de cartao para pagamento
 	public Client : seq1 of char * int ==> Client
 	 Client(nome, pay_card) == (
 		name := nome;
@@ -13,10 +13,6 @@ operations
 		return self;
 	);
 	
-	pure public getName: () ==> seq1 of char
-	getName() == return name;
 	
-	pure public getCardNumber: () ==> int
-	getCardNumber() == return payment_card;
 	
 end Client

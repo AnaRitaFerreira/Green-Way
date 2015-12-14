@@ -5,6 +5,7 @@ instance variables
 	public price: real;
 	
 operations
+  --postos de passagem única, têm uma lista de postos que cobram o cliente automaticamente e guardam o custo
 	public OnePassage : Spot * real ==> OnePassage
 	 OnePassage(s, p) == (
 	 	spot := s;

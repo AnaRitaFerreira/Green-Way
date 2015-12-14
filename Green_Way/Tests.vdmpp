@@ -14,12 +14,13 @@ operations
 		Test6(); -- Envia e efetua pagamento do invoice do mês anterior com mudança do ano
 		
   -- Error test cases (remover o comentário 1 a 1 para testar que falham)   
+	  /*
 	   Test7(); -- Remocao de Service Providers não existentes
 		 Test8(); -- Remocao de Clientes não existentes
 		 Test9(); -- Entrar num posto de uma Highway e numa saída de outra Highway
 	   Test10(); -- Passa num posto que não existente
      Test11(); -- Paga fatura que ainda não foi emitida
-    
+    */
   );
   
 
@@ -99,9 +100,9 @@ operations
   	spa.addService(device); 	
   	
   	gw.addServiceProvider(spa);
-  	gw.passa(cli1, entrance, new Time(10));
-  	gw.passa(cli1, spot, new Time(20));
-  	gw.passa(cli1, out, new Time(200));
+  	gw.passa(cli1, entrance, new Time());
+  	gw.passa(cli1, spot, new Time());
+  	gw.passa(cli1, out, new Time());
   	
   	assertEqual(0, gw.passages(cli1)(1).cost);
   	assertEqual(2.3, gw.passages(cli1)(2).cost);
@@ -129,7 +130,7 @@ operations
   	spa.addService(device);
   	gw.addServiceProvider(spa);
   	
-  	gw.passa(cli1, spot, new Time(10));
+  	gw.passa(cli1, spot, new Time());
   	
   	assertEqual(2.3, gw.passages(cli1)(1).cost);
   	
@@ -155,7 +156,7 @@ operations
   	spa.addService(device);
   	gw.addServiceProvider(spa);
   	
-  	gw.passa(cli1, spot, new Time(10));
+  	gw.passa(cli1, spot, new Time());
   	
   	gw.incrementMonth();
   	
@@ -187,7 +188,7 @@ operations
   	spa.addService(device);
   	gw.addServiceProvider(spa);
   	
-  	gw.passa(cli1, spot, new Time(10));
+  	gw.passa(cli1, spot, new Time());
   	
   	gw.incrementMonth();gw.incrementMonth();gw.incrementMonth();
   	gw.incrementMonth();gw.incrementMonth();gw.incrementMonth();
@@ -267,8 +268,8 @@ operations
   	cli1 := new Client("CLI1", 281923918);
   	gw.addClient(cli1);
   	
-  	gw.passa(cli1, e1, new Time(10));
-  	gw.passa(cli1, o2, new Time(200));
+  	gw.passa(cli1, e1, new Time());
+  	gw.passa(cli1, o2, new Time());
 
   );
   
@@ -294,8 +295,8 @@ operations
   	spa.addService(device);
   	gw.addServiceProvider(spa);
 	
-		gw.passa(cli1, spot, new Time(10));
-   	gw.passa(cli1, s, new Time(30));
+		gw.passa(cli1, spot, new Time());
+   	gw.passa(cli1, s, new Time());
   	
   );
   

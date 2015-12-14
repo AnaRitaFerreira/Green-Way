@@ -1,22 +1,15 @@
 class Time
 instance variables
 
-public timer: nat1;
 public month: nat1;
 public year: nat1;
 
 operations
 
-public static Diff : Time * Time ==> real 
-Diff (time1,time2) == (
-	 return time1.timer - time2.timer;
-);
-
-public Time : nat1 ==> Time
-	 Time(t) == (
+public Time : () ==> Time
+	 Time() == (
 	 	month := 1;
 	 	year := 2015;
-	 	timer := t;
 		return self;
 	);
 	
@@ -29,12 +22,5 @@ public setYear : nat1 ==> ()
 setYear (y) == (
 	year := y;
 );
-	
-functions
-
-	public compareTimes : nat1 * nat1 -> int
-		compareTimes(time1, time2) == (
-		time1- time2
-	);
 	
 end Time

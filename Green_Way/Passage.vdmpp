@@ -8,6 +8,8 @@ instance variables
 	public cost: real;
 	
 operations
+  --a classe passage guarda o registo de passagem dos clientes nos varios spots
+  --guarda a informação que são requeridas para executar a cobrança 
 	public Passage : Client * Spot * Time * [Service_Provider] * real ==> Passage
 	 Passage(cl, spt, t, sprovider, cst) == (
 	 	client := cl ;

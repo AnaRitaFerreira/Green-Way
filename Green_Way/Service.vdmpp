@@ -1,6 +1,8 @@
 class Service	
 
 operations
+  
+  --classe que define os serviços que o cliente tem acesso
 	public getAllSpots : () ==> set of Spot
 	getAllSpots() == 
     is subclass responsibility;
